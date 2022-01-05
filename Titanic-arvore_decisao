@@ -1,0 +1,36 @@
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+import numpy as np
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+titanic = pd.read_csv('titanic.csv')
+titanic.head()
+#Checando correlação das variáveis
+titanic.corr()
+#Apagar colunas desnacessárias para o modelo
+titanic.drop(['Name','Fare'],axis =1,inplace=True)
+#axis = 1, apaga a coluna toda
+#inplace =T, salva os dados direto no dataset, ou seja, não precisa colocar em outro objeto
+treino = titanic[0:620] #70%
+teste = titanic[620:887]#30%
+
+reino2 = pd.get_dummies(treino)
+teste2 = pd.get_dummies(teste)
+#Tratando valores nulos
+treino2.isnull().sum().sort_values(ascending=False).head(10)
+#.sort_values(ascending=False) -> Ordenar as colunas
+teste2.isnull().sum().head(10)
+
+#Separar variáveis regressoras
+x = treino2.drop('Survived',axis=1)
+y = treino2['Survived']
+
+#Criando Modelo -Arvore de decisão
+tree = DecisionTreeClassifier(max_depth = 3,random_state=0)
+#max_depth -> número de perguntas que o modelo irá responder
+tree.fit(x,y)
+
+Precisaõ do modelo
+tree.score(x,y)
+
