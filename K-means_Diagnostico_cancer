@@ -1,0 +1,42 @@
+install.packages("class")
+library(class)
+
+install.packages("gmodels")
+library(gmodels)
+
+setwd('C:\\Users\\Juliana\\Desktop\\PROGRAMAS\\R\\Livros')
+cancer = read.csv('dados_cancer.csv')
+View(cancer)
+str(cancer)
+#Apagar ID
+cancer = cancer[c(-1,-33)]
+attach(cancer)
+diagnosis = factor(diagnosis,levels = c("B","M"),labels = c("Benigno","Maligno"))
+round(prop.table(table(diagnosis))*100,digits = 2)
+
+#Normalizar os dados numéricos
+normalize = function(x)(return((x-min(x))/(max(x)-min(x))))     
+
+cancer_norm = as.data.frame(lapply(cancer[2:31],normalize))                        
+
+#Dividindo em base de teste e treino 
+cancer_train = cancer_norm[1:469,]
+cancer_teste = cancer_norm[470:569,]
+#Vai ser usado no modelo KNN
+y_cancer_train = cancer[1:469,1]
+#Vai ser usado para medir a acuracia
+y_cancer_teste = cancer[470:569,1]
+
+#Rodando modelo
+teste_knn = knn(cancer_train,cancer_teste,y_cancer_train,21)
+head(teste_knn)
+
+#Analisando o modelo
+tab = table(teste_knn,y_cancer_teste)
+#Mostra a quantidade de valores preditos corretamente e erroneamente
+CrossTable(y_cancer_teste,teste_knn,prop.chisq = F) 
+#Acuracia
+accuracy <- function(x){sum(diag(x)/(sum(rowSums(x)))) * 100}
+accuracy(tab)
+
+mean(y_cancer_teste != teste_knn)
